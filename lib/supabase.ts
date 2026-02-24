@@ -47,7 +47,7 @@ export interface CanonList {
 }
 
 export interface MovieWithScore extends Movie {
-  movie_scores: MovieScore | MovieScore[] | null;
+  movie_scores: MovieScore[];
   canon_lists: CanonList[];
 }
 
