@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --gold: #f5a623;
+  --gold-light: #f7b84b;
+  --gold-dark: #d4881c;
+  --bg: #0a0a0a;
+  --bg-100: #111111;
+  --bg-200: #1a1a1a;
+  --bg-300: #222222;
+  --bg-400: #2a2a2a;
+  --text: #e8e8e8;
+  --text-muted: #888888;
+  --border: #2a2a2a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Score bar animations */
+@keyframes scoreBarFill {
+  from { width: 0; }
+  to { width: var(--target-width); }
+}
+
+.score-bar-fill {
+  animation: scoreBarFill 0.8s ease-out forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-200);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-400);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Gold text gradient */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #f5a623 0%, #f7b84b 50%, #d4881c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hover card effect */
+.movie-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.movie-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 166, 35, 0.15);
+}
+
+/* Rank number style */
+.rank-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}

@@ -1,0 +1,266 @@
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { getMovieById, getTopMovies } from '@/lib/supabase';
+import { ScoreBreakdown } from '@/app/components/RankingBar';
+
+interface MoviePageProps {
+  params: { id: string };
+}
+
+export async function generateStaticParams() {
+  const movies = await getTopMovies(100);
+  return movies.map((m) => ({ id: m.id }));
+}
+
+export async function generateMetadata({ params }: MoviePageProps) {
+  const movie = await getMovieById(params.id);
+  if (!movie) return { title: 'Movie Not Found' };
+  return {
+    title: `${movie.title} (${movie.year}) — CrowdAndCritic`,
+    description: movie.plot ?? `See the composite score for ${movie.title} on CrowdAndCritic.`,
+  };
+}
+
+function ScoreBadge({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+}) {
+  return (
+    <div className="flex flex-col items-center p-4 rounded-xl bg-[#111] border border-[#1a1a1a] min-w-[90px]">
+      <span className="text-2xl font-bold tabular-nums" style={{ color: color ?? '#f5a623' }}>
+        {value}
+      </span>
+      <span className="text-xs text-[#888] mt-1">{label}</span>
+      {sub && <span className="text-[10px] text-[#555] mt-0.5">{sub}</span>}
+    </div>
+  );
+}
+
+export default async function MoviePage({ params }: MoviePageProps) {
+  const movie = await getMovieById(params.id);
+
+  if (!movie) {
+    notFound();
+  }
+
+  const score = movie.movie_scores?.[0];
+  const canonLists = movie.canon_lists ?? [];
+
+  const compositeScore = score?.composite_score ?? 0;
+  const scoreColor =
+    compositeScore >= 85 ? '#22c55e' : compositeScore >= 70 ? '#f5a623' : '#ef4444';
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
+      {/* Breadcrumb */}
+      <nav className="mb-6">
+        <Link href="/" className="text-sm text-[#555] hover:text-[#f5a623] transition-colors">
+          ← Back to Rankings
+        </Link>
+      </nav>
+
+      {/* Hero */}
+      <div className="flex flex-col sm:flex-row gap-8 mb-10">
+        {/* Poster */}
+        <div className="relative w-40 sm:w-52 shrink-0 rounded-xl overflow-hidden shadow-2xl border border-[#222] self-start mx-auto sm:mx-0">
+          {movie.poster_url ? (
+            <Image
+              src={movie.poster_url}
+              alt={`${movie.title} poster`}
+              width={208}
+              height={308}
+              className="w-full object-cover"
+              unoptimized={movie.poster_url.includes('m.media-amazon.com')}
+            />
+          ) : (
+            <div className="w-full h-[308px] flex items-center justify-center bg-[#1a1a1a] text-[#333] text-5xl">
+              🎬
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="flex-1">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+                {movie.title}
+              </h1>
+              <div className="flex items-center gap-3 mt-2 text-sm text-[#666] flex-wrap">
+                <span>{movie.year}</span>
+                {movie.director && (
+                  <>
+                    <span className="text-[#333]">·</span>
+                    <span>{movie.director}</span>
+                  </>
+                )}
+                {movie.runtime_minutes && (
+                  <>
+                    <span className="text-[#333]">·</span>
+                    <span>{movie.runtime_minutes} min</span>
+                  </>
+                )}
+              </div>
+              <div className="flex gap-1.5 mt-3 flex-wrap">
+                {movie.genres?.map((g) => (
+                  <span
+                    key={g}
+                    className="text-xs px-2 py-0.5 rounded-full bg-[#1a1a1a] text-[#777] border border-[#222]"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Composite score badge */}
+            <div
+              className="flex flex-col items-center justify-center w-20 h-20 rounded-full border-2 shrink-0"
+              style={{ borderColor: scoreColor, boxShadow: `0 0 24px ${scoreColor}30` }}
+            >
+              <span className="text-2xl font-bold tabular-nums" style={{ color: scoreColor }}>
+                {compositeScore.toFixed(1)}
+              </span>
+              <span className="text-[10px] text-[#555]">composite</span>
+            </div>
+          </div>
+
+          {/* Plot */}
+          {movie.plot && (
+            <p className="mt-5 text-[#888] text-sm leading-relaxed max-w-xl">{movie.plot}</p>
+          )}
+
+          {/* Raw score badges */}
+          {score && (
+            <div className="flex gap-3 mt-6 flex-wrap">
+              {score.rt_tomatometer != null && (
+                <ScoreBadge
+                  label="Tomatometer"
+                  value={`${score.rt_tomatometer}%`}
+                  color="#ef4444"
+                />
+              )}
+              {score.metacritic_score != null && (
+                <ScoreBadge
+                  label="Metacritic"
+                  value={score.metacritic_score}
+                  color="#f97316"
+                />
+              )}
+              {score.imdb_rating != null && (
+                <ScoreBadge
+                  label="IMDb"
+                  value={score.imdb_rating}
+                  sub={score.imdb_votes ? `${(score.imdb_votes / 1000).toFixed(0)}K votes` : undefined}
+                  color="#f5a623"
+                />
+              )}
+              {score.rt_audience != null && (
+                <ScoreBadge
+                  label="RT Audience"
+                  value={`${score.rt_audience}%`}
+                  color="#3b82f6"
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Score breakdown */}
+        <div className="lg:col-span-2">
+          {score ? (
+            <div className="p-6 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
+              <ScoreBreakdown
+                criticScore={score.critic_score ?? 0}
+                audienceScore={score.audience_score ?? 0}
+                canonScore={score.canon_score ?? 0}
+                longevityBonus={score.longevity_bonus ?? 0}
+                popularityWeight={score.popularity_weight ?? 0}
+                compositeScore={score.composite_score ?? 0}
+              />
+            </div>
+          ) : (
+            <div className="p-6 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a] text-[#555] text-sm">
+              No score data available.
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Canon appearances */}
+          {canonLists.length > 0 && (
+            <div className="p-5 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
+              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <span>🏆</span> Canon Appearances
+              </h3>
+              <ul className="space-y-2">
+                {canonLists.map((cl) => (
+                  <li key={cl.id} className="flex items-center justify-between text-sm">
+                    <span className="text-[#888] leading-tight text-xs">{cl.list_name}</span>
+                    {cl.rank_on_list && (
+                      <span className="text-[#f5a623] font-semibold text-xs tabular-nums shrink-0 ml-2">
+                        #{cl.rank_on_list}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 pt-3 border-t border-[#1a1a1a] text-xs text-[#555]">
+                {canonLists.length} prestigious list{canonLists.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+          )}
+
+          {/* Where to watch */}
+          <div className="p-5 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
+            <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+              <span>📺</span> Where to Watch
+            </h3>
+            <a
+              href={`https://www.justwatch.com/us/search?q=${encodeURIComponent(movie.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333]"
+            >
+              <span>Find on JustWatch</span>
+              <span className="text-[#444]">→</span>
+            </a>
+            {movie.imdb_id && (
+              <a
+                href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=crowdandcritic-20`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mt-2"
+              >
+                <span>Buy / Rent on Amazon</span>
+                <span className="text-[#444]">→</span>
+              </a>
+            )}
+            {movie.imdb_id && (
+              <a
+                href={`https://www.imdb.com/title/${movie.imdb_id}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mt-2"
+              >
+                <span>View on IMDb</span>
+                <span className="text-[#444]">→</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
