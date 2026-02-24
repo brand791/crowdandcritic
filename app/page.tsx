@@ -1,7 +1,7 @@
 import { getTopMovies, MovieWithScore } from '@/lib/supabase';
 import MovieListClient from './components/MovieListClient';
 
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic'; // Always fetch fresh data
 
 export default async function HomePage() {
   const movies = await getTopMovies(100);
