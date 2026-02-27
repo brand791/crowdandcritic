@@ -604,7 +604,6 @@ async function seed() {
         imdb_rating: movie.imdb_rating,
         rt_audience: movie.rt_audience,
         metacritic_user: movie.metacritic_user,
-        imdb_votes: movie.imdb_votes,
         canon_appearances: movie.canon_appearances,
         year: movie.year,
       });
@@ -649,13 +648,11 @@ async function seed() {
             imdb_rating: movie.imdb_rating,
             rt_audience: movie.rt_audience,
             metacritic_user: movie.metacritic_user,
-            imdb_votes: movie.imdb_votes,
             canon_appearances: movie.canon_appearances,
             critic_score: computed.critic_score,
             audience_score: computed.audience_score,
             canon_score: computed.canon_score,
             longevity_bonus: computed.longevity_bonus,
-            popularity_weight: computed.popularity_weight,
             composite_score: computed.composite_score,
           },
           { onConflict: 'movie_id' }
