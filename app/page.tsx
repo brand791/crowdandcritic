@@ -37,23 +37,23 @@ export default async function HomePage() {
         <div className="flex items-center justify-center gap-6 mt-8 text-xs text-[#555]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
-            <span>Critic 30%</span>
+            <span>Critic 35%</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
-            <span>Audience 25%</span>
+            <span>Audience 35%</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#a855f7]" />
-            <span>Canon 25%</span>
+            <span>Canon 15%</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
-            <span>Longevity 10%</span>
+            <span>Longevity 5%</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-            <span>Popularity 10%</span>
+            <span>Popularity 5%</span>
           </div>
         </div>
       </div>
@@ -72,17 +72,17 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-[#666] leading-relaxed">
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
               <div className="text-2xl mb-3">🍅</div>
-              <h3 className="text-white font-semibold mb-2">Critic Score (30%)</h3>
+              <h3 className="text-white font-semibold mb-2">Critic Score (35%)</h3>
               <p>Average of Rotten Tomatoes Tomatometer and Metacritic score, normalized to 0–100.</p>
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
               <div className="text-2xl mb-3">👥</div>
-              <h3 className="text-white font-semibold mb-2">Audience Score (25%)</h3>
+              <h3 className="text-white font-semibold mb-2">Audience Score (35%)</h3>
               <p>Average of IMDb rating (×10), RT Audience Score, and Metacritic User Score.</p>
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
               <div className="text-2xl mb-3">🏆</div>
-              <h3 className="text-white font-semibold mb-2">Canon Score (25%)</h3>
+              <h3 className="text-white font-semibold mb-2">Canon Score (15%)</h3>
               <p>
                 Appearances on prestigious &quot;greatest ever&quot; lists: AFI Top 100, Sight &amp; Sound,
                 Empire 100, TSPDT, and more.
@@ -90,10 +90,16 @@ export default async function HomePage() {
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
               <div className="text-2xl mb-3">⏳</div>
-              <h3 className="text-white font-semibold mb-2">Longevity Bonus (10%)</h3>
+              <h3 className="text-white font-semibold mb-2">Longevity Bonus (5%)</h3>
               <p>
-                Older films that remain highly rated receive a boost. A film from 1941 still scoring 95
-                is more remarkable than a 2024 release.
+                Older films that remain highly rated receive a 0-5 point bonus. A classic from 1941 staying highly ranked is more remarkable than a recent release.
+              </p>
+            </div>
+            <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
+              <div className="text-2xl mb-3">📢</div>
+              <h3 className="text-white font-semibold mb-2">Popularity Factor (5%)</h3>
+              <p>
+                Cultural impact measured through Reddit discussions and social engagement. Popular films that spark ongoing conversation get a modest boost.
               </p>
             </div>
           </div>
