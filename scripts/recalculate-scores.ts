@@ -35,31 +35,38 @@ async function recalculateScores() {
   console.log(`📊 Found ${results.length} movie scores. Recalculating with v2 formula...`);
 
   // Recalculate all scores
-  const updates = results.map((record) => {
-    const movie = record.movies as any;
-    const computed = computeAllScores({
-      rt_tomatometer: record.rt_tomatometer,
-      metacritic_score: record.metacritic_score,
-      imdb_rating: record.imdb_rating,
-      rt_audience: record.rt_audience,
-      metacritic_user: record.metacritic_user,
-      canon_appearances: record.canon_appearances || 0,
-      year: movie.year,
-    });
+  const updates = results
+    .map((record) => {
+      const movie = record.movies as any;
+      if (!movie || !movie.id) {
+        console.warn(`⚠️  Skipping score id=${record.id} - no associated movie`);
+        return null;
+      }
 
-    return {
-      id: record.id,
-      movie_id: record.movie_id,
-      title: movie.title,
-      year: movie.year,
-      old_composite: record.composite_score,
-      new_composite: computed.composite_score,
-      critic_score: computed.critic_score,
-      audience_score: computed.audience_score,
-      canon_score: computed.canon_score,
-      longevity_bonus: computed.longevity_bonus,
-    };
-  });
+      const computed = computeAllScores({
+        rt_tomatometer: record.rt_tomatometer,
+        metacritic_score: record.metacritic_score,
+        imdb_rating: record.imdb_rating,
+        rt_audience: record.rt_audience,
+        metacritic_user: record.metacritic_user,
+        canon_appearances: record.canon_appearances || 0,
+        year: movie.year,
+      });
+
+      return {
+        id: record.id,
+        movie_id: record.movie_id,
+        title: movie.title,
+        year: movie.year,
+        old_composite: record.composite_score,
+        new_composite: computed.composite_score,
+        critic_score: computed.critic_score,
+        audience_score: computed.audience_score,
+        canon_score: computed.canon_score,
+        longevity_bonus: computed.longevity_bonus,
+      };
+    })
+    .filter((u): u is NonNullable<typeof u> => u !== null);
 
   // Display changes
   console.log('\n📈 Score Updates (v2 Formula):');

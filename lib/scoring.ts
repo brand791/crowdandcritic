@@ -17,6 +17,9 @@ export interface RawScores {
   // Canon
   canon_appearances: number;
 
+  // Popularity (optional, for v3 formula)
+  popularity_score?: number;        // 0–5 (Reddit + YouTube)
+
   // Context
   year: number;
 }
@@ -26,6 +29,7 @@ export interface ComputedScores {
   audience_score: number;
   canon_score: number;
   longevity_bonus: number;
+  popularity_score: number;
   composite_score: number;
 }
 
@@ -98,24 +102,57 @@ export function computeLongevityBonus(
 
 /**
  * Compute all scores from raw inputs
+ * 
+ * v2 Formula (without popularity):
+ *   - Critic: 40%, Audience: 40%, Canon: 15%, Longevity: 5%
+ *   (Note: longevity is 0-5 points, not 0-100, so multiply by 1 not by weight)
+ * 
+ * v3 Formula (with popularity):
+ *   - Critic: 35%, Audience: 35%, Canon: 15%, Longevity: 5%, Popularity: 5%
+ *   (Same note: longevity is 0-5 points)
  */
 export function computeAllScores(raw: RawScores): ComputedScores {
   const critic_score = computeCriticScore(raw.rt_tomatometer, raw.metacritic_score);
   const audience_score = computeAudienceScore(raw.imdb_rating, raw.rt_audience, raw.metacritic_user);
   const canon_score = computeCanonScore(raw.canon_appearances);
-  const longevity_bonus = computeLongevityBonus(raw.year);
+  const longevity_bonus = computeLongevityBonus(raw.year); // Returns 0-5
+  const popularity_score = raw.popularity_score ?? 0; // 0-5, default 0 if not provided
 
-  const composite_score =
-    critic_score * 0.40 +
-    audience_score * 0.40 +
-    canon_score * 0.15 +
-    longevity_bonus * 0.05;
+  // Normalize popularity from 0-5 scale to 0-100 for consistency
+  const popularity_normalized = (popularity_score / 5) * 100;
+
+  // Use v3 formula if popularity is provided, otherwise v2
+  // Note: longevity_bonus is a 0-5 point bonus, added on top of weighted scores
+  let composite_score: number;
+  if (raw.popularity_score !== undefined && raw.popularity_score > 0) {
+    // v3: with popularity (adjusted weights, longevity added on top)
+    // Weighted components: 35 + 35 + 15 + 5 = 90% of the score
+    // Longevity: 5 bonus points added on top
+    // Max score: 90 + 5 = 95 (when popularity is maxed, it's slightly lower than perfect)
+    composite_score =
+      critic_score * 0.35 +
+      audience_score * 0.35 +
+      canon_score * 0.15 +
+      popularity_normalized * 0.05 +
+      longevity_bonus;  // 0-5 point bonus
+  } else {
+    // v2: without popularity (original weights, longevity added on top)
+    // Weighted components: 40 + 40 + 15 = 95% of the score
+    // Longevity: 5 bonus points added on top
+    // Max score: 95 + 5 = 100 (perfect)
+    composite_score =
+      critic_score * 0.40 +
+      audience_score * 0.40 +
+      canon_score * 0.15 +
+      longevity_bonus;  // 0-5 point bonus
+  }
 
   return {
     critic_score: Math.round(critic_score * 100) / 100,
     audience_score: Math.round(audience_score * 100) / 100,
     canon_score: Math.round(canon_score * 100) / 100,
     longevity_bonus: Math.round(longevity_bonus * 100) / 100,
+    popularity_score: Math.round(popularity_score * 100) / 100,
     composite_score: Math.round(composite_score * 100) / 100,
   };
 }
