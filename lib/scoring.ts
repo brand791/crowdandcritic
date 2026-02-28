@@ -105,11 +105,11 @@ export function computeLongevityBonus(
  * 
  * v2 Formula (without popularity):
  *   - Critic: 40%, Audience: 40%, Canon: 15%, Longevity: 5%
- *   (Note: longevity is 0-5 points, not 0-100, so multiply by 1 not by weight)
  * 
  * v3 Formula (with popularity):
- *   - Critic: 35%, Audience: 35%, Canon: 15%, Longevity: 5%, Popularity: 5%
- *   (Same note: longevity is 0-5 points)
+ *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 5%, Longevity: 5%
+ * 
+ * All components normalized to 0-100 scale. Max score: 100
  */
 export function computeAllScores(raw: RawScores): ComputedScores {
   const critic_score = computeCriticScore(raw.rt_tomatometer, raw.metacritic_score);
@@ -118,33 +118,29 @@ export function computeAllScores(raw: RawScores): ComputedScores {
   const longevity_bonus = computeLongevityBonus(raw.year); // Returns 0-5
   const popularity_score = raw.popularity_score ?? 0; // 0-5, default 0 if not provided
 
-  // Normalize popularity from 0-5 scale to 0-100 for consistency
+  // Normalize both to 0-100 scale for consistency
+  const longevity_normalized = (longevity_bonus / 5) * 100;
   const popularity_normalized = (popularity_score / 5) * 100;
 
   // Use v3 formula if popularity is provided, otherwise v2
-  // Note: longevity_bonus is a 0-5 point bonus, added on top of weighted scores
   let composite_score: number;
   if (raw.popularity_score !== undefined && raw.popularity_score > 0) {
-    // v3: with popularity (adjusted weights, longevity added on top)
-    // Weighted components: 35 + 35 + 15 + 5 = 90% of the score
-    // Longevity: 5 bonus points added on top
-    // Max score: 90 + 5 = 95 (when popularity is maxed, it's slightly lower than perfect)
+    // v3: with popularity
+    // Formula: Critic(35%) + Audience(35%) + Canon(15%) + Popularity(5%) + Longevity(5%) = 100%
     composite_score =
       critic_score * 0.35 +
       audience_score * 0.35 +
       canon_score * 0.15 +
       popularity_normalized * 0.05 +
-      longevity_bonus;  // 0-5 point bonus
+      longevity_normalized * 0.05;
   } else {
-    // v2: without popularity (original weights, longevity added on top)
-    // Weighted components: 40 + 40 + 15 = 95% of the score
-    // Longevity: 5 bonus points added on top
-    // Max score: 95 + 5 = 100 (perfect)
+    // v2: without popularity
+    // Formula: Critic(40%) + Audience(40%) + Canon(15%) + Longevity(5%) = 100%
     composite_score =
       critic_score * 0.40 +
       audience_score * 0.40 +
       canon_score * 0.15 +
-      longevity_bonus;  // 0-5 point bonus
+      longevity_normalized * 0.05;
   }
 
   return {
