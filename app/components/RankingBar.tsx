@@ -97,7 +97,7 @@ export function ScoreBreakdown({
             icon="🍅"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">30% weight — RT Tomatometer + Metacritic</p>
+          <p className="text-xs text-[#555] mt-1">35% weight — RT Tomatometer + Metacritic</p>
         </div>
 
         <div>
@@ -108,7 +108,7 @@ export function ScoreBreakdown({
             icon="👥"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">25% weight — IMDb + RT Audience + Metacritic User</p>
+          <p className="text-xs text-[#555] mt-1">35% weight — IMDb + RT Audience + Metacritic User</p>
         </div>
 
         <div>
@@ -119,7 +119,7 @@ export function ScoreBreakdown({
             icon="🏆"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">25% weight — Appearances on prestigious film lists</p>
+          <p className="text-xs text-[#555] mt-1">15% weight — Appearances on prestigious film lists</p>
         </div>
 
         <div>
@@ -130,7 +130,7 @@ export function ScoreBreakdown({
             icon="⏳"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">10% weight — Older films still rated highly get a boost</p>
+          <p className="text-xs text-[#555] mt-1">5% weight — Older films still rated highly get a boost</p>
         </div>
 
         <div>
@@ -141,33 +141,33 @@ export function ScoreBreakdown({
             icon="🔥"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">10% weight — Based on IMDb vote count (log scale)</p>
+          <p className="text-xs text-[#555] mt-1">5% weight — Reddit discussion volume and engagement</p>
         </div>
       </div>
 
       {/* Composite score formula */}
       <div className="mt-6 p-4 rounded-lg bg-[#111] border border-[#222] text-xs text-[#555] font-mono">
-        <div className="text-[#666] mb-2 font-sans font-medium text-sm">Formula</div>
+        <div className="text-[#666] mb-2 font-sans font-medium text-sm">v3 Formula</div>
         <div className="space-y-1">
           <div>
             <span className="text-[#ef4444]">{criticScore.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.30 </span>
+            <span className="text-[#444]"> × 0.35 </span>
           </div>
           <div>
             <span className="text-[#3b82f6]">+ {audienceScore.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.25 </span>
+            <span className="text-[#444]"> × 0.35 </span>
           </div>
           <div>
             <span className="text-[#a855f7]">+ {canonScore.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.25 </span>
-          </div>
-          <div>
-            <span className="text-[#22c55e]">+ {longevityBonus.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.10 </span>
+            <span className="text-[#444]"> × 0.15 </span>
           </div>
           <div>
             <span className="text-[#f59e0b]">+ {popularityWeight.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.10 </span>
+            <span className="text-[#444]"> × 0.05 </span>
+          </div>
+          <div>
+            <span className="text-[#22c55e]">+ {longevityBonus.toFixed(1)}</span>
+            <span className="text-[#444]"> × 0.05 </span>
           </div>
           <div className="border-t border-[#222] pt-2 mt-2">
             <span className="text-[#f5a623] font-semibold">= {compositeScore.toFixed(2)}</span>
