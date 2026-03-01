@@ -44,10 +44,6 @@ export default async function HomePage() {
             <span>Audience 35%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#a855f7]" />
-            <span>Canon 15%</span>
-          </div>
-          <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
             <span>Popularity 10%</span>
           </div>
@@ -92,14 +88,14 @@ export default async function HomePage() {
               <div className="text-2xl mb-3">📢</div>
               <h3 className="text-white font-semibold mb-2">Popularity (10%)</h3>
               <p>
-                Cultural impact measured through Reddit discussions and social engagement. Popular films that spark ongoing conversation get a bigger boost.
+                Cultural resonance measured through Reddit discussions and social engagement. Popular films that spark ongoing conversation get a modest boost.
               </p>
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
               <div className="text-2xl mb-3">⏳</div>
               <h3 className="text-white font-semibold mb-2">Longevity Bonus (0–5 flat)</h3>
               <p>
-                Older films that remain highly rated receive a 0-5 point bonus on top. A classic from 1941 staying highly ranked is more remarkable than a recent release.
+                Older films that remain highly rated receive a 0-5 point bonus on top. A film from 1941 staying excellent is more remarkable than a recent release.
               </p>
             </div>
           </div>
