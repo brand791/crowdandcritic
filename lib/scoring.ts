@@ -1,7 +1,8 @@
 /**
  * CrowdAndCritic Composite Scoring Engine
  *
- * Composite Score = (critic * 0.40) + (audience * 0.40) + (canon * 0.15) + (longevity * 0.05)
+ * v3 Formula: (Critic * 0.35 + Audience * 0.35 + Canon * 0.15 + Popularity * 0.05) + Longevity Bonus (0-5 flat)
+ * v2 Formula: (Critic * 0.40 + Audience * 0.40 + Canon * 0.15) + Longevity Bonus (0-5 flat)
  */
 
 export interface RawScores {
@@ -104,43 +105,44 @@ export function computeLongevityBonus(
  * Compute all scores from raw inputs
  * 
  * v2 Formula (without popularity):
- *   - Critic: 40%, Audience: 40%, Canon: 15%, Longevity: 5%
+ *   - Critic: 40%, Audience: 40%, Canon: 15% = 95% (of base score)
+ *   - Plus: Longevity Bonus (0-5 points flat)
  * 
  * v3 Formula (with popularity):
- *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 5%, Longevity: 5%
+ *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 5% = 90% (of base score)
+ *   - Plus: Longevity Bonus (0-5 points flat)
  * 
- * All components normalized to 0-100 scale. Max score: 100
+ * Base components normalized to 0-100 scale. Max score: 95-105 depending on longevity.
  */
 export function computeAllScores(raw: RawScores): ComputedScores {
   const critic_score = computeCriticScore(raw.rt_tomatometer, raw.metacritic_score);
   const audience_score = computeAudienceScore(raw.imdb_rating, raw.rt_audience, raw.metacritic_user);
   const canon_score = computeCanonScore(raw.canon_appearances);
-  const longevity_bonus = computeLongevityBonus(raw.year); // Returns 0-5
+  const longevity_bonus = computeLongevityBonus(raw.year); // Returns 0-5 (flat bonus, not %)
   const popularity_score = raw.popularity_score ?? 0; // 0-5, default 0 if not provided
 
-  // Normalize both to 0-100 scale for consistency
-  const longevity_normalized = (longevity_bonus / 5) * 100;
+  // Normalize popularity to 0-100 scale for weighting
   const popularity_normalized = (popularity_score / 5) * 100;
 
   // Use v3 formula if popularity is provided, otherwise v2
   let composite_score: number;
   if (raw.popularity_score !== undefined && raw.popularity_score > 0) {
     // v3: with popularity
-    // Formula: Critic(35%) + Audience(35%) + Canon(15%) + Popularity(5%) + Longevity(5%) = 100%
+    // Formula: (Critic*0.35 + Audience*0.35 + Canon*0.15 + Popularity*0.05) + Longevity Bonus
     composite_score =
       critic_score * 0.35 +
       audience_score * 0.35 +
       canon_score * 0.15 +
       popularity_normalized * 0.05 +
-      longevity_normalized * 0.05;
+      longevity_bonus; // Flat 0-5 point bonus, not weighted
   } else {
     // v2: without popularity
-    // Formula: Critic(40%) + Audience(40%) + Canon(15%) + Longevity(5%) = 100%
+    // Formula: (Critic*0.40 + Audience*0.40 + Canon*0.15) + Longevity Bonus
     composite_score =
       critic_score * 0.40 +
       audience_score * 0.40 +
       canon_score * 0.15 +
-      longevity_normalized * 0.05;
+      longevity_bonus; // Flat 0-5 point bonus, not weighted
   }
 
   return {

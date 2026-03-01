@@ -44,14 +44,8 @@ async function applyV3ScoringFast() {
         return null;
       }
 
-      // For now, simulate popularity based on year (older = more popular)
-      // This is just for testing v3 formula math
-      const ageYears = 2026 - movie.year;
-      let simulatedPopularity = 0;
-      if (ageYears > 40) simulatedPopularity = 4; // Old classics
-      else if (ageYears > 20) simulatedPopularity = 2; // Older films
-      else if (ageYears > 5) simulatedPopularity = 1; // Recent-ish
-      // else 0 for very new
+      // Use actual stored popularity_weight from database (convert 0-100 → 0-5)
+      const popularityScore = score.popularity_weight ? (score.popularity_weight / 100) * 5 : 0; // 97.28 → 4.864
 
       const computed = computeAllScores({
         rt_tomatometer: score.rt_tomatometer,
@@ -60,7 +54,7 @@ async function applyV3ScoringFast() {
         rt_audience: score.rt_audience,
         metacritic_user: score.metacritic_user,
         canon_appearances: score.canon_appearances || 0,
-        popularity_score: simulatedPopularity,
+        popularity_score: popularityScore, // Now uses actual stored values
         year: movie.year,
       });
 
@@ -71,7 +65,7 @@ async function applyV3ScoringFast() {
         year: movie.year,
         v2_score: score.composite_score,
         v3_score: computed.composite_score,
-        popularity: simulatedPopularity,
+        popularity: popularityScore,
         critic_score: computed.critic_score,
         audience_score: computed.audience_score,
         canon_score: computed.canon_score,
@@ -140,8 +134,9 @@ async function applyV3ScoringFast() {
   console.log('═'.repeat(100));
   console.log('\n📝 Summary:');
   console.log(`   - ${updates.length} movies recalculated`);
-  console.log('   - Formula: Critic 35% + Audience 35% + Canon 15% + Longevity 5% + Popularity 5%');
-  console.log('   - Popularity: Simulated based on movie age (test mode)');
+  console.log('   - Formula: (Critic 35% + Audience 35% + Canon 15% + Popularity 5%) + Longevity Bonus (0-5 flat)');
+  console.log('   - Longevity: Now added as flat 0-5 point bonus (not weighted)');
+  console.log('   - Popularity: Using actual stored values from database');
   console.log('\n💡 To implement real Reddit crawling:');
   console.log('   - Run: npx tsx scripts/apply-v3-scoring.ts');
   console.log('   - Note: Reddit crawling is slow (2+ seconds per movie)');
