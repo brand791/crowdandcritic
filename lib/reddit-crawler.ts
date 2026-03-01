@@ -45,12 +45,18 @@ export async function searchReddit(movieTitle: string): Promise<RedditMetrics> {
     try {
       const url = `https://www.reddit.com/r/${subreddit}/search.json?q=${searchQuery}&type=link&sort=relevance&limit=25&t=year`;
 
+      // Use AbortController for timeout (standard fetch doesn't support timeout option)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'CrowdAndCritic/1.0 (brand791)',
         },
-        timeout: 5000,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.warn(`Reddit API returned ${response.status} for ${subreddit}`);
