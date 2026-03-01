@@ -134,8 +134,8 @@ async function applyV3ScoringFast() {
   console.log('═'.repeat(100));
   console.log('\n📝 Summary:');
   console.log(`   - ${updates.length} movies recalculated`);
-  console.log('   - Formula: (Critic 35% + Audience 35% + Canon 15% + Popularity 5%) + Longevity Bonus (0-5 flat)');
-  console.log('   - Longevity: Now added as flat 0-5 point bonus (not weighted)');
+  console.log('   - Formula: (Critic 35% + Audience 35% + Canon 15% + Popularity 10%) + Longevity Bonus (0-5 flat)');
+  console.log('   - Weighted: 95%, Plus longevity: 0-5, Max score: 100');
   console.log('   - Popularity: Using actual stored values from database');
   console.log('\n💡 To implement real Reddit crawling:');
   console.log('   - Run: npx tsx scripts/apply-v3-scoring.ts');

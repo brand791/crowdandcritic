@@ -1,7 +1,8 @@
 /**
  * CrowdAndCritic Composite Scoring Engine
  *
- * v3 Formula: (Critic * 0.35 + Audience * 0.35 + Canon * 0.15 + Popularity * 0.05) + Longevity Bonus (0-5 flat)
+ * v3 Formula: (Critic * 0.35 + Audience * 0.35 + Canon * 0.15 + Popularity * 0.10) + Longevity Bonus (0-5 flat)
+ *             = 95% weighted average + 0-5 flat bonus = max 100
  * v2 Formula: (Critic * 0.40 + Audience * 0.40 + Canon * 0.15) + Longevity Bonus (0-5 flat)
  */
 
@@ -109,10 +110,9 @@ export function computeLongevityBonus(
  *   - Plus: Longevity Bonus (0-5 points flat)
  * 
  * v3 Formula (with popularity):
- *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 5% = 90% (of base score)
+ *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 10% = 95% (of base score)
  *   - Plus: Longevity Bonus (0-5 points flat)
- * 
- * Base components normalized to 0-100 scale. Max score: 95-105 depending on longevity.
+ *   - Max score: 100 (95% weighted + 5 longevity)
  */
 export function computeAllScores(raw: RawScores): ComputedScores {
   const critic_score = computeCriticScore(raw.rt_tomatometer, raw.metacritic_score);
@@ -128,12 +128,13 @@ export function computeAllScores(raw: RawScores): ComputedScores {
   let composite_score: number;
   if (raw.popularity_score !== undefined && raw.popularity_score > 0) {
     // v3: with popularity
-    // Formula: (Critic*0.35 + Audience*0.35 + Canon*0.15 + Popularity*0.05) + Longevity Bonus
+    // Formula: (Critic*0.35 + Audience*0.35 + Canon*0.15 + Popularity*0.10) + Longevity Bonus
+    // = 95% weighted + 0-5 flat = max 100
     composite_score =
       critic_score * 0.35 +
       audience_score * 0.35 +
       canon_score * 0.15 +
-      popularity_normalized * 0.05 +
+      popularity_normalized * 0.10 +
       longevity_bonus; // Flat 0-5 point bonus, not weighted
   } else {
     // v2: without popularity

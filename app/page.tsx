@@ -48,12 +48,12 @@ export default async function HomePage() {
             <span>Canon 15%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
-            <span>Longevity 5%</span>
+            <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+            <span>Popularity 10%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-            <span>Popularity 5%</span>
+            <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
+            <span>Longevity +0-5</span>
           </div>
         </div>
       </div>
@@ -89,17 +89,17 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
-              <div className="text-2xl mb-3">⏳</div>
-              <h3 className="text-white font-semibold mb-2">Longevity Bonus (5%)</h3>
+              <div className="text-2xl mb-3">📢</div>
+              <h3 className="text-white font-semibold mb-2">Popularity (10%)</h3>
               <p>
-                Older films that remain highly rated receive a 0-5 point bonus. A classic from 1941 staying highly ranked is more remarkable than a recent release.
+                Cultural impact measured through Reddit discussions and social engagement. Popular films that spark ongoing conversation get a bigger boost.
               </p>
             </div>
             <div className="p-5 rounded-xl bg-[#111] border border-[#1a1a1a]">
-              <div className="text-2xl mb-3">📢</div>
-              <h3 className="text-white font-semibold mb-2">Popularity Factor (5%)</h3>
+              <div className="text-2xl mb-3">⏳</div>
+              <h3 className="text-white font-semibold mb-2">Longevity Bonus (0–5 flat)</h3>
               <p>
-                Cultural impact measured through Reddit discussions and social engagement. Popular films that spark ongoing conversation get a modest boost.
+                Older films that remain highly rated receive a 0-5 point bonus on top. A classic from 1941 staying highly ranked is more remarkable than a recent release.
               </p>
             </div>
           </div>

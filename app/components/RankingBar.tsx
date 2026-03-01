@@ -124,24 +124,24 @@ export function ScoreBreakdown({
 
         <div>
           <RankingBar
-            label="Longevity Bonus"
-            value={longevityBonus}
-            color="#22c55e"
-            icon="⏳"
-            size="md"
-          />
-          <p className="text-xs text-[#555] mt-1">5% weight — Older films still rated highly get a boost</p>
-        </div>
-
-        <div>
-          <RankingBar
             label="Popularity"
             value={popularityWeight}
             color="#f59e0b"
             icon="🔥"
             size="md"
           />
-          <p className="text-xs text-[#555] mt-1">5% weight — Reddit discussion volume and engagement</p>
+          <p className="text-xs text-[#555] mt-1">10% weight — Reddit discussion volume and engagement</p>
+        </div>
+
+        <div>
+          <RankingBar
+            label="Longevity Bonus"
+            value={longevityBonus}
+            color="#22c55e"
+            icon="⏳"
+            size="md"
+          />
+          <p className="text-xs text-[#555] mt-1">0–5 flat bonus — Older films still rated highly get a boost</p>
         </div>
       </div>
 
@@ -149,7 +149,7 @@ export function ScoreBreakdown({
       <div className="mt-6 p-4 rounded-lg bg-[#111] border border-[#222] text-xs text-[#555] font-mono">
         <div className="text-[#666] mb-2 font-sans font-medium text-sm">v3 Formula</div>
         <div className="space-y-1">
-          <div className="text-[#777] text-xs mb-3">Weighted average (90%):</div>
+          <div className="text-[#777] text-xs mb-3">Weighted average (95%):</div>
           <div>
             <span className="text-[#ef4444]">{criticScore.toFixed(1)}</span>
             <span className="text-[#444]"> × 0.35 </span>
@@ -164,12 +164,12 @@ export function ScoreBreakdown({
           </div>
           <div>
             <span className="text-[#f59e0b]">+ {popularityWeight.toFixed(1)}</span>
-            <span className="text-[#444]"> × 0.05 </span>
+            <span className="text-[#444]"> × 0.10 </span>
           </div>
           <div className="text-[#777] text-xs mt-3 mb-1">Plus longevity bonus (flat points):</div>
           <div>
             <span className="text-[#22c55e]">+ {longevityBonus.toFixed(1)}</span>
-            <span className="text-[#444]"> (flat 0–5)</span>
+            <span className="text-[#444]"> (flat 0–5, max score = 100)</span>
           </div>
           <div className="border-t border-[#222] pt-2 mt-2">
             <span className="text-[#f5a623] font-semibold">= {compositeScore.toFixed(2)}</span>
