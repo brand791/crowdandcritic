@@ -105,27 +105,29 @@ export function computeLongevityBonus(
  * Compute all scores from raw inputs
  * 
  * v3 Formula (final):
- *   - Critic: 35%, Audience: 35%, Popularity: 10% = 80% (of base score)
+ *   - Critic: 35%, Audience: 35%, Canon: 15%, Popularity: 10% = 95% (weighted average)
  *   - Plus: Longevity Bonus (0-5 points flat)
- *   - Max score: ~85 (80% weighted + 5 longevity)
+ *   - Max score: 100 (95% + 5 longevity, capped at 100)
  */
 export function computeAllScores(raw: RawScores): ComputedScores {
   const critic_score = computeCriticScore(raw.rt_tomatometer, raw.metacritic_score);
   const audience_score = computeAudienceScore(raw.imdb_rating, raw.rt_audience, raw.metacritic_user);
-  const canon_score = computeCanonScore(raw.canon_appearances); // Still computed but not used
+  const canon_score = computeCanonScore(raw.canon_appearances);
   const longevity_bonus = computeLongevityBonus(raw.year); // Returns 0-5 (flat bonus, not %)
-  const popularity_score = raw.popularity_score ?? 0; // 0-5, default 0 if not provided
+  const popularity_score = raw.popularity_score ?? 0; // Already 0-100 scale, NOT 0-5
 
-  // Normalize popularity to 0-100 scale for weighting
-  const popularity_normalized = (popularity_score / 5) * 100;
-
-  // v3 formula (canon removed for fairness and simplicity)
-  // Formula: (Critic*0.35 + Audience*0.35 + Popularity*0.10) + Longevity Bonus (0-5 flat)
-  const composite_score =
+  // v3 formula with all components
+  // Formula: (Critic*0.35 + Audience*0.35 + Canon*0.15 + Popularity*0.10) + Longevity Bonus (0-5 flat)
+  // Weights: 0.35 + 0.35 + 0.15 + 0.10 = 0.95 (95% weighted average)
+  let composite_score =
     critic_score * 0.35 +
     audience_score * 0.35 +
-    popularity_normalized * 0.10 +
+    canon_score * 0.15 +
+    popularity_score * 0.10 +
     longevity_bonus; // Flat 0-5 point bonus, not weighted
+
+  // Cap at 100 to prevent scores over 100
+  composite_score = Math.min(composite_score, 100);
 
   return {
     critic_score: Math.round(critic_score * 100) / 100,
