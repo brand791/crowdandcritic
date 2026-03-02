@@ -104,7 +104,7 @@ async function recalculateAllScores() {
 
   const overflowCount = allScores?.filter(s => s.composite_score > 100).length || 0;
   const nullCount = allScores?.filter(s => s.composite_score === null).length || 0;
-  const avgScore = allScores?.reduce((sum, s) => sum + (s.composite_score || 0), 0) / (allScores?.length || 1) || 0;
+  const avgScore = (allScores || []).reduce((sum, s) => sum + (s.composite_score || 0), 0) / ((allScores || []).length || 1) || 0;
 
   console.log(`\nScore Statistics:`);
   console.log(`  - Min composite score: ${minScore.toFixed(1)}`);
