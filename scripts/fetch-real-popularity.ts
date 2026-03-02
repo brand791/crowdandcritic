@@ -56,55 +56,55 @@ async function searchReddit(movieTitle: string, year: number): Promise<{
     .replace(/\s+/g, '+')
     .substring(0, 100);
 
-  const subreddits = ['movies', 'TrueFilm', 'flicks'];
   let totalMentions = 0;
   let totalEngagement = 0;
   let topPostScore = 0;
 
-  for (const subreddit of subreddits) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10sec timeout
+  // Only search r/movies (the biggest subreddit)
+  // This reduces API calls from 3 per movie to 1 per movie
+  const subreddit = 'movies';
 
-      const response = await fetch(
-        `https://www.reddit.com/r/${subreddit}/search.json?q=${searchQuery}&type=link&sort=relevance&limit=100&t=all`,
-        {
-          headers: {
-            'User-Agent': 'CrowdAndCritic/1.0 (movie ranking aggregator)',
-          },
-          signal: controller.signal,
-        }
-      );
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15sec timeout
 
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        continue;
+    const response = await fetch(
+      `https://www.reddit.com/r/${subreddit}/search.json?q=${searchQuery}&type=link&sort=relevance&limit=50&t=all`,
+      {
+        headers: {
+          'User-Agent': 'CrowdAndCritic/1.0 (movie ranking aggregator)',
+        },
+        signal: controller.signal,
       }
+    );
 
-      const data: RedditResponse = await response.json();
+    clearTimeout(timeoutId);
 
-      if (data?.data?.children) {
-        const posts = data.data.children.map((c) => c.data);
-
-        // Count mentions and engagement
-        totalMentions += posts.length;
-        const engagement = posts.reduce((sum, post) => {
-          // Engagement = upvotes + (comments * 0.5) — comments have value but less than upvotes
-          return sum + (post.ups || 0) + (post.num_comments || 0) * 0.5;
-        }, 0);
-        totalEngagement += engagement;
-
-        const maxScore = Math.max(...posts.map((p) => p.ups || 0));
-        topPostScore = Math.max(topPostScore, maxScore);
+    if (!response.ok) {
+      if (response.status === 429) {
+        // Rate limited - wait longer
+        console.warn(`⚠️  Rate limit hit on Reddit. Waiting 60 seconds...`);
+        await new Promise((resolve) => setTimeout(resolve, 60000));
       }
-
-      // Respect rate limit (300ms between subreddit searches)
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    } catch (err) {
-      // Silently fail if Reddit search times out or errors
-      continue;
+      return { mentions: 0, totalEngagement: 0, topPostScore: 0 };
     }
+
+    const data: RedditResponse = await response.json();
+
+    if (data?.data?.children) {
+      const posts = data.data.children.map((c) => c.data);
+
+      // Count mentions and engagement
+      totalMentions = posts.length;
+      totalEngagement = posts.reduce((sum, post) => {
+        return sum + (post.ups || 0) + (post.num_comments || 0) * 0.5;
+      }, 0);
+
+      topPostScore = Math.max(...posts.map((p) => p.ups || 0), 0);
+    }
+  } catch (err) {
+    // Silently fail if Reddit search times out or errors
+    return { mentions: 0, totalEngagement: 0, topPostScore: 0 };
   }
 
   return {
@@ -149,8 +149,10 @@ function convertToPopularityScore(
 
 async function fetchRealPopularity() {
   console.log('═'.repeat(100));
-  console.log('FETCHING REAL POPULARITY FROM REDDIT');
+  console.log('FETCHING REAL POPULARITY FROM REDDIT (BATCH MODE)');
   console.log('═'.repeat(100) + '\n');
+
+  const BATCH_SIZE = 50; // Process 50 movies at a time
 
   // Step 1: Fetch all movies
   console.log('📊 Step 1: Fetching all movies...');
@@ -165,81 +167,97 @@ async function fetchRealPopularity() {
 
   console.log(`✅ Found ${movies.length} movies\n`);
 
-  // Step 2: Search Reddit for each movie
-  console.log('🔍 Step 2: Searching Reddit for popularity data...\n');
+  // Step 2: Process in batches
+  console.log(`🔍 Step 2: Searching Reddit for popularity data (${BATCH_SIZE} movies per batch)...\n`);
 
-  const popularityData: PopularityData[] = [];
+  const totalBatches = Math.ceil(movies.length / BATCH_SIZE);
+  let totalPopularityData: PopularityData[] = [];
 
-  for (let i = 0; i < movies.length; i++) {
-    const movie = movies[i] as any;
-    const progress = `[${i + 1}/${movies.length}]`;
+  for (let batchNum = 0; batchNum < totalBatches; batchNum++) {
+    const batchStart = batchNum * BATCH_SIZE;
+    const batchEnd = Math.min(batchStart + BATCH_SIZE, movies.length);
+    const batchMovies = movies.slice(batchStart, batchEnd);
 
-    process.stdout.write(`\r${progress} Searching Reddit for "${movie.title}" (${movie.year})...`);
+    console.log(`\n📦 BATCH ${batchNum + 1}/${totalBatches} (movies ${batchStart + 1}-${batchEnd})\n`);
 
-    try {
-      const reddit = await searchReddit(movie.title, movie.year);
+    const batchData: PopularityData[] = [];
 
-      if (reddit.mentions > 0) {
-        const { score_0_to_5, score_0_to_100 } = convertToPopularityScore(
-          reddit.mentions,
-          reddit.totalEngagement,
-          reddit.topPostScore
-        );
+    for (let i = 0; i < batchMovies.length; i++) {
+      const movie = batchMovies[i] as any;
+      const globalIndex = batchStart + i;
+      const progress = `[${globalIndex + 1}/${movies.length}]`;
 
-        popularityData.push({
-          movieId: movie.id,
-          title: movie.title,
-          year: movie.year,
-          mentions: reddit.mentions,
-          totalEngagement: reddit.totalEngagement,
-          topPostScore: reddit.topPostScore,
-          score_0_to_5,
-          score_0_to_100,
-        });
+      process.stdout.write(`\r${progress} Searching Reddit for "${movie.title}" (${movie.year})...`);
 
-        process.stdout.write(
-          ` ✓ (${reddit.mentions} mentions, ${score_0_to_5.toFixed(2)}/5)\n`
-        );
-      } else {
-        process.stdout.write(` — (no mentions)\n`);
+      try {
+        const reddit = await searchReddit(movie.title, movie.year);
+
+        if (reddit.mentions > 0) {
+          const { score_0_to_5, score_0_to_100 } = convertToPopularityScore(
+            reddit.mentions,
+            reddit.totalEngagement,
+            reddit.topPostScore
+          );
+
+          batchData.push({
+            movieId: movie.id,
+            title: movie.title,
+            year: movie.year,
+            mentions: reddit.mentions,
+            totalEngagement: reddit.totalEngagement,
+            topPostScore: reddit.topPostScore,
+            score_0_to_5,
+            score_0_to_100,
+          });
+
+          process.stdout.write(
+            ` ✓ (${reddit.mentions} mentions, ${score_0_to_5.toFixed(2)}/5)\n`
+          );
+        } else {
+          process.stdout.write(` — (no mentions)\n`);
+        }
+      } catch (err) {
+        process.stdout.write(` ✗\n`);
       }
-    } catch (err) {
-      process.stdout.write(` ✗\n`);
+
+      // STRICT rate limiting: 2 second delay between movies
+      // Reddit public API limit is ~60 requests/minute
+      // At 2 seconds per request = 30 requests/minute (well under limit)
+      if (i < batchMovies.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
     }
 
-    // Respectful rate limiting
-    if (i < movies.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    // Save batch to database immediately
+    console.log(`\n💾 Saving batch ${batchNum + 1}...`);
+    if (batchData.length > 0) {
+      for (const pop of batchData) {
+        await supabase
+          .from('movie_scores')
+          .update({ popularity_weight: pop.score_0_to_100 })
+          .eq('id', (movies.find((m: any) => m.id === pop.movieId) as any)?.movie_scores?.id);
+      }
+      totalPopularityData = totalPopularityData.concat(batchData);
+    }
+    console.log(`✅ Batch ${batchNum + 1} saved (${batchData.length} movies)\n`);
+
+    // Wait between batches (reduce pressure on Reddit)
+    if (batchNum < totalBatches - 1) {
+      console.log(`⏸️  Waiting 30 seconds before next batch...\n`);
+      await new Promise((resolve) => setTimeout(resolve, 30000));
     }
   }
 
-  console.log(`\n✅ Found popularity data for ${popularityData.length}/${movies.length} movies\n`);
+  console.log(`\n✅ Found popularity data for ${totalPopularityData.length}/${movies.length} movies\n`);
 
-  // Step 3: Update database with popularity scores
-  console.log('💾 Step 3: Updating database with real popularity scores...');
-
-  let updateCount = 0;
-  for (const pop of popularityData) {
-    const { error: updateError } = await supabase
-      .from('movie_scores')
-      .update({ popularity_weight: pop.score_0_to_100 })
-      .eq('id', (movies.find((m: any) => m.id === pop.movieId) as any)?.movie_scores?.id);
-
-    if (!updateError) {
-      updateCount++;
-    }
-  }
-
-  console.log(`✅ Updated ${updateCount} movies with real popularity scores!\n`);
-
-  // Step 4: Recalculate composite scores with real popularity
-  console.log('🎯 Step 4: Recalculating composite scores with real popularity...');
+  // Step 3: Recalculate composite scores with real popularity
+  console.log('🎯 Step 3: Recalculating composite scores with real popularity...');
 
   const scoresToUpdate = [];
 
   for (const movie of movies) {
     const movieData = movie as any;
-    const popData = popularityData.find((p) => p.movieId === movieData.id);
+    const popData = totalPopularityData.find((p) => p.movieId === movieData.id);
 
     if (!popData) continue;
 
@@ -264,6 +282,7 @@ async function fetchRealPopularity() {
   }
 
   // Update all scores
+  console.log(`\n💾 Updating ${scoresToUpdate.length} composite scores...`);
   for (const score of scoresToUpdate) {
     await supabase
       .from('movie_scores')

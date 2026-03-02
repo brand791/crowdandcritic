@@ -64,7 +64,6 @@ export default function RankingBar({
 interface ScoreBreakdownProps {
   criticScore: number;
   audienceScore: number;
-  canonScore: number;
   longevityBonus: number;
   popularityWeight: number;
   compositeScore: number;
@@ -73,7 +72,6 @@ interface ScoreBreakdownProps {
 export function ScoreBreakdown({
   criticScore,
   audienceScore,
-  canonScore,
   longevityBonus,
   popularityWeight,
   compositeScore,
