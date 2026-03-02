@@ -4,7 +4,7 @@ import MovieListClient from './components/MovieListClient';
 export const dynamic = 'force-dynamic'; // Always fetch fresh data
 
 export default async function HomePage() {
-  const movies = await getTopMovies(100);
+  const movies = await getTopMovies(519);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12">
@@ -34,7 +34,7 @@ export default async function HomePage() {
         </p>
 
         {/* Score legend */}
-        <div className="flex items-center justify-center gap-6 mt-8 text-xs text-[#555]">
+        <div className="flex items-center justify-center gap-4 mt-8 text-xs text-[#555] flex-wrap">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
             <span>Critic 35%</span>
@@ -42,6 +42,10 @@ export default async function HomePage() {
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
             <span>Audience 35%</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#a855f7]" />
+            <span>Canon 15%</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />

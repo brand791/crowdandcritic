@@ -38,32 +38,51 @@ interface MovieWithScores {
   id: string;
   title: string;
   year: number;
-  movie_scores: {
-    rt_tomatometer: number | null;
-    metacritic_score: number | null;
-    imdb_rating: number | null;
-    rt_audience: number | null;
-    metacritic_user: number | null;
-    canon_appearances: number;
-  } & { [key: string]: any };
+  movie_scores: Array<
+    {
+      id: string;
+      rt_tomatometer: number | null;
+      metacritic_score: number | null;
+      imdb_rating: number | null;
+      rt_audience: number | null;
+      metacritic_user: number | null;
+      canon_appearances: number;
+    } & { [key: string]: any }
+  >;
 }
 
-async function searchOMDB(title: string, year: number): Promise<OMDBResponse | null> {
-  try {
-    const url = `${OMDB_BASE_URL}/?apikey=${omdbApiKey}&t=${encodeURIComponent(title)}&y=${year}&type=movie`;
-    
-    const response = await fetch(url);
-    const data: OMDBResponse = await response.json();
+async function searchOMDB(title: string, year: number, retries: number = 3): Promise<OMDBResponse | null> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const url = `${OMDB_BASE_URL}/?apikey=${omdbApiKey}&t=${encodeURIComponent(title)}&y=${year}&type=movie`;
+      
+      const response = await fetch(url);
+      const data: OMDBResponse = await response.json();
 
-    if (data.Response === 'False' || data.Error) {
-      return null;
+      // Check for rate limit error
+      if (data.Error?.includes('rate') || data.Error?.includes('Request limit')) {
+        const waitTime = Math.pow(2, attempt - 1) * 5000; // 5s, 10s, 20s exponential backoff
+        console.warn(`⚠️  Rate limit hit (attempt ${attempt}/${retries}). Waiting ${waitTime / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue; // Retry
+      }
+
+      if (data.Response === 'False' || data.Error) {
+        return null;
+      }
+
+      return data;
+    } catch (err) {
+      if (attempt === retries) {
+        console.error(`❌ OMDB search error for "${title}":`, err);
+        return null;
+      }
+      const waitTime = Math.pow(2, attempt - 1) * 2000; // 2s, 4s, 8s
+      console.warn(`⚠️  Network error (attempt ${attempt}/${retries}). Waiting ${waitTime / 1000}s...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
-
-    return data;
-  } catch (err) {
-    console.error(`❌ OMDB search error for "${title}":`, err);
-    return null;
   }
+  return null;
 }
 
 function extractScoresFromOMDB(omdb: OMDBResponse): {
@@ -160,6 +179,13 @@ async function fetchOMDBScores() {
     foundCount++;
     const scores = extractScoresFromOMDB(omdbData);
 
+    // Get the first (and usually only) movie_scores record
+    const movieScore = movie.movie_scores[0];
+    if (!movieScore) {
+      process.stdout.write(' ✗ (no score record)\n');
+      continue;
+    }
+
     // Recalculate composite score with new data
     const computed = computeAllScores({
       rt_tomatometer: scores.rt_tomatometer,
@@ -167,13 +193,13 @@ async function fetchOMDBScores() {
       imdb_rating: scores.imdb_rating,
       rt_audience: scores.rt_audience,
       metacritic_user: scores.metacritic_user,
-      canon_appearances: movie.movie_scores.canon_appearances || 0,
+      canon_appearances: movieScore.canon_appearances || 0,
       popularity_score: 2.0, // Keep existing popularity for now
       year: movie.year,
     });
 
     updates.push({
-      id: movie.movie_scores.id,
+      id: movieScore.id,
       rt_tomatometer: scores.rt_tomatometer,
       metacritic_score: scores.metacritic_score,
       imdb_rating: scores.imdb_rating,
@@ -189,9 +215,12 @@ async function fetchOMDBScores() {
 
     process.stdout.write(' ✓\n');
 
-    // Respect OMDB rate limit (free tier = 1 req/sec max, safe with 200ms delay)
+    // Respect OMDB rate limit (1000 requests/day limit)
+    // 1000 requests / 86400 seconds = 1 request every ~86 seconds for full safety
+    // Using 1500ms (~667 req/hour) to allow multiple runs per day without hitting limit
+    // For 519 movies: 519 × 1.5s = ~13 minutes per full run, ~180 req from 1000 budget
     if (i < movies.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     }
   }
 
@@ -242,8 +271,9 @@ async function fetchOMDBScores() {
     console.log('\n✨ Top 10 Movies (with OMDB data):\n');
     topMovies.forEach((m, idx) => {
       const movie = m.movies as any;
+      const score = m.composite_score ? m.composite_score.toFixed(1) : 'N/A';
       console.log(
-        `${(idx + 1).toString().padStart(2)}. ${movie.title} (${movie.year}) - ${m.composite_score.toFixed(1)}`
+        `${(idx + 1).toString().padStart(2)}. ${movie.title} (${movie.year}) - ${score}`
       );
     });
   }

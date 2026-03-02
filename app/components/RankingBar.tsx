@@ -64,6 +64,7 @@ export default function RankingBar({
 interface ScoreBreakdownProps {
   criticScore: number;
   audienceScore: number;
+  canonScore: number;
   longevityBonus: number;
   popularityWeight: number;
   compositeScore: number;
@@ -72,6 +73,7 @@ interface ScoreBreakdownProps {
 export function ScoreBreakdown({
   criticScore,
   audienceScore,
+  canonScore,
   longevityBonus,
   popularityWeight,
   compositeScore,
@@ -111,6 +113,17 @@ export function ScoreBreakdown({
 
         <div>
           <RankingBar
+            label="Canon Score"
+            value={canonScore}
+            color="#a855f7"
+            icon="⭐"
+            size="md"
+          />
+          <p className="text-xs text-[#555] mt-1">15% weight — AFI, Sight & Sound, TSPDT, Empire lists</p>
+        </div>
+
+        <div>
+          <RankingBar
             label="Popularity"
             value={popularityWeight}
             color="#f59e0b"
@@ -136,7 +149,7 @@ export function ScoreBreakdown({
       <div className="mt-6 p-4 rounded-lg bg-[#111] border border-[#222] text-xs text-[#555] font-mono">
         <div className="text-[#666] mb-2 font-sans font-medium text-sm">Score Formula</div>
         <div className="space-y-1">
-          <div className="text-[#777] text-xs mb-3">Weighted average (80%):</div>
+          <div className="text-[#777] text-xs mb-3">Weighted average (95%):</div>
           <div>
             <span className="text-[#ef4444]">{criticScore.toFixed(1)}</span>
             <span className="text-[#444]"> × 0.35 </span>
@@ -144,6 +157,10 @@ export function ScoreBreakdown({
           <div>
             <span className="text-[#3b82f6]">+ {audienceScore.toFixed(1)}</span>
             <span className="text-[#444]"> × 0.35 </span>
+          </div>
+          <div>
+            <span className="text-[#a855f7]">+ {canonScore.toFixed(1)}</span>
+            <span className="text-[#444]"> × 0.15 </span>
           </div>
           <div>
             <span className="text-[#f59e0b]">+ {popularityWeight.toFixed(1)}</span>

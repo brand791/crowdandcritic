@@ -29,30 +29,52 @@ interface TMDBSearchResponse {
   results: TMDBMovie[];
 }
 
-async function searchTMDB(title: string, year: number): Promise<TMDBMovie | null> {
-  try {
-    const response = await fetch(
-      `${TMDB_BASE_URL}/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&year=${year}`
-    );
+async function searchTMDB(title: string, year: number, retries: number = 3): Promise<TMDBMovie | null> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(
+        `${TMDB_BASE_URL}/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(title)}&year=${year}`
+      );
 
-    if (!response.ok) {
-      console.warn(`⚠️  TMDB search failed for "${title}": ${response.status}`);
-      return null;
+      // Check for rate limit (429 status code)
+      if (response.status === 429) {
+        const waitTime = Math.pow(2, attempt - 1) * 5000; // 5s, 10s, 20s exponential backoff
+        console.warn(`⚠️  Rate limit hit (attempt ${attempt}/${retries}). Waiting ${waitTime / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue; // Retry
+      }
+
+      if (!response.ok) {
+        if (attempt === retries) {
+          console.warn(`⚠️  TMDB search failed for "${title}": ${response.status}`);
+          return null;
+        }
+        const waitTime = Math.pow(2, attempt - 1) * 2000;
+        console.warn(`⚠️  HTTP ${response.status} (attempt ${attempt}/${retries}). Waiting ${waitTime / 1000}s...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
+
+      const data: TMDBSearchResponse = await response.json();
+
+      if (!data.results || data.results.length === 0) {
+        console.warn(`⚠️  No results found on TMDB for "${title}" (${year})`);
+        return null;
+      }
+
+      // Return first result (should be the most relevant)
+      return data.results[0];
+    } catch (err) {
+      if (attempt === retries) {
+        console.error(`❌ Error searching TMDB for "${title}":`, err);
+        return null;
+      }
+      const waitTime = Math.pow(2, attempt - 1) * 2000;
+      console.warn(`⚠️  Network error (attempt ${attempt}/${retries}). Waiting ${waitTime / 1000}s...`);
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
-
-    const data: TMDBSearchResponse = await response.json();
-
-    if (!data.results || data.results.length === 0) {
-      console.warn(`⚠️  No results found on TMDB for "${title}" (${year})`);
-      return null;
-    }
-
-    // Return first result (should be the most relevant)
-    return data.results[0];
-  } catch (err) {
-    console.error(`❌ Error searching TMDB for "${title}":`, err);
-    return null;
   }
+  return null;
 }
 
 async function fetchPosters() {
@@ -96,8 +118,8 @@ async function fetchPosters() {
       console.log(`  ⚠️  No poster found, keeping placeholder`);
     }
 
-    // Respect TMDB rate limits (4 requests/sec = 250ms delay)
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // Respect TMDB rate limits (4 requests/sec, using 500ms for safety margin)
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log('\n');

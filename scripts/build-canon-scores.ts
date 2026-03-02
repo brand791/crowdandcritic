@@ -174,7 +174,15 @@ async function buildCanonScores() {
 
     if (canonCount === 0) continue; // Skip movies not in any canon list
 
-    const scoreId = movie.movie_scores?.id;
+    // movie_scores is an array; get the first (and typically only) score record
+    const movieScores = Array.isArray(movie.movie_scores)
+      ? movie.movie_scores
+      : movie.movie_scores
+        ? [movie.movie_scores]
+        : [];
+
+    if (movieScores.length === 0) continue;
+    const scoreId = (movieScores[0] as any).id;
     if (!scoreId) continue;
 
     const { error: updateError } = await supabase

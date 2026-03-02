@@ -314,7 +314,7 @@ async function fetchRealPopularity() {
   console.log('✅ REAL POPULARITY FETCH COMPLETE!');
   console.log('═'.repeat(100));
   console.log(`\n📝 Summary:`);
-  console.log(`   - Found Reddit data for: ${popularityData.length}/${movies.length} movies`);
+  console.log(`   - Found Reddit data for: ${totalPopularityData.length}/${movies.length} movies`);
   console.log(`   - Recalculated: ${scoresToUpdate.length} composite scores`);
   console.log(`   - Source: Reddit (r/movies, r/TrueFilm, r/flicks)`);
   console.log(`   - Method: Mention count + engagement (upvotes + comments)\n`);
