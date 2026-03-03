@@ -45,6 +45,34 @@ export default async function HomePage() {
         </div>
       </div>
 
+      {/* Feature Links */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+        <a
+          href="/controversy"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">🔥</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Controversy Index</h3>
+          <p className="text-xs text-[#666]">Where critics and audiences disagree most</p>
+        </a>
+        <a
+          href="/hidden-gems"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">💎</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Hidden Gems</h3>
+          <p className="text-xs text-[#666]">High-quality films nobody's heard of</p>
+        </a>
+        <a
+          href="/decades"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">📅</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Decades</h3>
+          <p className="text-xs text-[#666]">Best films from each era</p>
+        </a>
+      </div>
+
       {/* Movie List */}
       {movies.length === 0 ? (
         <EmptyState />
