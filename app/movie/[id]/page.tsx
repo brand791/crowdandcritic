@@ -190,17 +190,15 @@ export default async function MoviePage({ params }: MoviePageProps) {
             </h3>
             
             {/* Primary CTA - Amazon (Affiliate) */}
-            {movie.imdb_id && (
-              <a
-                href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=brand791-20`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-[#f5a623] hover:bg-[#f7b84b] text-black font-semibold text-sm transition-all mb-2"
-              >
-                <span>🎁 Watch on Amazon</span>
-                <span>→</span>
-              </a>
-            )}
+            <a
+              href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=brand791-20`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-[#f5a623] hover:bg-[#f7b84b] text-black font-semibold text-sm transition-all mb-2"
+            >
+              <span>🎁 Watch on Amazon</span>
+              <span>→</span>
+            </a>
             
             {/* Secondary CTA - JustWatch */}
             <a
