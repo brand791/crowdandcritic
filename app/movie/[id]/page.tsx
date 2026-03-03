@@ -143,16 +143,9 @@ export default async function MoviePage({ params }: MoviePageProps) {
             <div className="flex gap-3 mt-6 flex-wrap">
               {score.rt_tomatometer != null && (
                 <ScoreBadge
-                  label="Tomatometer"
+                  label="Rotten Tomatoes"
                   value={`${score.rt_tomatometer}%`}
                   color="#ef4444"
-                />
-              )}
-              {score.metacritic_score != null && (
-                <ScoreBadge
-                  label="Metacritic"
-                  value={score.metacritic_score}
-                  color="#f97316"
                 />
               )}
               {score.imdb_rating != null && (
@@ -161,13 +154,6 @@ export default async function MoviePage({ params }: MoviePageProps) {
                   value={score.imdb_rating}
                   sub={score.imdb_votes ? `${(score.imdb_votes / 1000).toFixed(0)}K votes` : undefined}
                   color="#f5a623"
-                />
-              )}
-              {score.rt_audience != null && (
-                <ScoreBadge
-                  label="RT Audience"
-                  value={`${score.rt_audience}%`}
-                  color="#3b82f6"
                 />
               )}
             </div>
@@ -181,11 +167,8 @@ export default async function MoviePage({ params }: MoviePageProps) {
           {score ? (
             <div className="p-6 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
               <ScoreBreakdown
-                criticScore={score.critic_score ?? 0}
-                audienceScore={score.audience_score ?? 0}
-                canonScore={score.canon_score ?? 0}
-                longevityBonus={score.longevity_bonus ?? 0}
-                popularityWeight={score.popularity_weight ?? 0}
+                rtScore={score.rt_tomatometer ?? 0}
+                imdbScore={score.imdb_rating ?? 0}
                 compositeScore={score.composite_score ?? 0}
               />
             </div>
@@ -198,30 +181,6 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Canon appearances */}
-          {canonLists.length > 0 && (
-            <div className="p-5 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
-              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                <span>🏆</span> Canon Appearances
-              </h3>
-              <ul className="space-y-2">
-                {canonLists.map((cl) => (
-                  <li key={cl.id} className="flex items-center justify-between text-sm">
-                    <span className="text-[#888] leading-tight text-xs">{cl.list_name}</span>
-                    {cl.rank_on_list && (
-                      <span className="text-[#f5a623] font-semibold text-xs tabular-nums shrink-0 ml-2">
-                        #{cl.rank_on_list}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 pt-3 border-t border-[#1a1a1a] text-xs text-[#555]">
-                {canonLists.length} prestigious list{canonLists.length !== 1 ? 's' : ''}
-              </div>
-            </div>
-          )}
-
           {/* Where to watch */}
           <div className="p-5 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
             <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">

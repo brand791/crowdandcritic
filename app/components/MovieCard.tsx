@@ -20,10 +20,12 @@ function ScorePill({
   label,
   value,
   color,
+  isPercent,
 }: {
   label: string;
   value: number | null | undefined;
   color: string;
+  isPercent?: boolean;
 }) {
   if (value == null) return null;
   return (
@@ -32,7 +34,7 @@ function ScorePill({
         {label}
       </span>
       <span className="text-xs font-semibold" style={{ color }}>
-        {value.toFixed(0)}
+        {isPercent ? `${value.toFixed(0)}%` : value.toFixed(0)}
       </span>
     </div>
   );
@@ -104,19 +106,15 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
       {/* Sub-scores (hidden on mobile) */}
       <div className="hidden sm:flex items-center gap-5 shrink-0">
         <ScorePill
-          label="Critic"
-          value={score?.critic_score}
+          label="RT"
+          value={score?.rt_tomatometer}
           color="#ef4444"
+          isPercent={true}
         />
         <ScorePill
-          label="Audience"
-          value={score?.audience_score}
-          color="#3b82f6"
-        />
-        <ScorePill
-          label="Canon"
-          value={score?.canon_score}
-          color="#a855f7"
+          label="IMDb"
+          value={score?.imdb_rating}
+          color="#f5a623"
         />
       </div>
 

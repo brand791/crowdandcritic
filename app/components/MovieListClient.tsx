@@ -62,9 +62,8 @@ export default function MovieListClient({ movies }: MovieListClientProps) {
         <div className="w-10 shrink-0" />
         <div className="flex-1">Film</div>
         <div className="flex items-center gap-5 shrink-0">
-          <span className="w-10 text-center text-[#ef4444]">Critic</span>
-          <span className="w-12 text-center text-[#3b82f6]">Audience</span>
-          <span className="w-10 text-center text-[#a855f7]">Canon</span>
+          <span className="w-10 text-center text-[#ef4444]">RT</span>
+          <span className="w-12 text-center text-[#f5a623]">IMDb</span>
         </div>
         <div className="w-12 text-center ml-2">Score</div>
       </div>
