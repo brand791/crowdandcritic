@@ -181,39 +181,48 @@ export default async function MoviePage({ params }: MoviePageProps) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Where to watch */}
-          <div className="p-5 rounded-2xl bg-[#0f0f0f] border border-[#1a1a1a]">
+          {/* Where to Watch - CTA */}
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] border border-[#f5a623] border-opacity-20">
             <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <span>📺</span> Where to Watch
+              <span>🎬</span> Watch Now
             </h3>
-            <a
-              href={`https://www.justwatch.com/us/search?q=${encodeURIComponent(movie.title)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333]"
-            >
-              <span>Find on JustWatch</span>
-              <span className="text-[#444]">→</span>
-            </a>
+            
+            {/* Primary CTA - Amazon (Affiliate) */}
             {movie.imdb_id && (
               <a
                 href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=crowdandcritic-20`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mt-2"
+                data-event="click_amazon_affiliate"
+                className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-[#f5a623] hover:bg-[#f7b84b] text-black font-semibold text-sm transition-all mb-2"
               >
-                <span>Buy / Rent on Amazon</span>
-                <span className="text-[#444]">→</span>
+                <span>🎁 Watch on Amazon</span>
+                <span>→</span>
               </a>
             )}
+            
+            {/* Secondary CTA - JustWatch */}
+            <a
+              href={`https://www.justwatch.com/us/search?q=${encodeURIComponent(movie.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-event="click_justwatch"
+              className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mb-2"
+            >
+              <span>Find Streaming Options</span>
+              <span className="text-[#444]">→</span>
+            </a>
+            
+            {/* Tertiary - IMDb */}
             {movie.imdb_id && (
               <a
                 href={`https://www.imdb.com/title/${movie.imdb_id}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mt-2"
+                data-event="click_imdb"
+                className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333]"
               >
-                <span>View on IMDb</span>
+                <span>View Details on IMDb</span>
                 <span className="text-[#444]">→</span>
               </a>
             )}
