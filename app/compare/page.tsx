@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MovieWithScore, getTopMovies } from '@/lib/supabase';
@@ -18,7 +18,7 @@ export default function ComparePage() {
   const [searchInput, setSearchInput] = useState('');
 
   // Load movies on mount
-  React.useEffect(() => {
+  useEffect(() => {
     loadMovies().then(m => {
       setMovies(m);
       setLoading(false);
