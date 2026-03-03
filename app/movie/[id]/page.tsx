@@ -190,7 +190,7 @@ export default async function MoviePage({ params }: MoviePageProps) {
             {/* Primary CTA - Amazon (Affiliate) */}
             {movie.imdb_id && (
               <a
-                href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=crowdandcritic-20`}
+                href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=brand791-20`}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-event="click_amazon_affiliate"
