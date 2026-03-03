@@ -59,7 +59,6 @@ export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
       movie_scores (*),
       canon_lists (*)
     `)
-    .order('title', { ascending: true })
     .limit(limit);
 
   if (error) {
@@ -80,7 +79,11 @@ export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
   return normalized.sort((a, b) => {
     const scoreA = (a.movie_scores as MovieScore[])?.[0]?.composite_score ?? 0;
     const scoreB = (b.movie_scores as MovieScore[])?.[0]?.composite_score ?? 0;
-    return scoreB - scoreA;
+    // Sort by composite score descending, then by title for movies with same score
+    if (Math.abs(scoreB - scoreA) > 0.01) {
+      return scoreB - scoreA;
+    }
+    return a.title.localeCompare(b.title);
   });
 }
 
