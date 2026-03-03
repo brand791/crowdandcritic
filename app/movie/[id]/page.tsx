@@ -5,12 +5,14 @@ import { getMovieById, getTopMovies } from '@/lib/supabase';
 import { ScoreBreakdown } from '@/app/components/RankingBar';
 import { AffiliateLink } from '@/app/components/AffiliateLink';
 
+export const revalidate = 3600; // Revalidate every hour
+
 interface MoviePageProps {
   params: { id: string };
 }
 
 export async function generateStaticParams() {
-  const movies = await getTopMovies(100);
+  const movies = await getTopMovies(200);
   return movies.map((m) => ({ id: m.id }));
 }
 
