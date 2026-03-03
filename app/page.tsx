@@ -45,8 +45,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Feature Links */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+      {/* Feature Links - Row 1 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <a
           href="/controversy"
           className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
@@ -70,6 +70,34 @@ export default async function HomePage() {
           <div className="text-2xl mb-2">📅</div>
           <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Decades</h3>
           <p className="text-xs text-[#666]">Best films from each era</p>
+        </a>
+      </div>
+
+      {/* Feature Links - Row 2 */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+        <a
+          href="/genres"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">🎬</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Genre Leaderboards</h3>
+          <p className="text-xs text-[#666]">Top 20 films in each genre</p>
+        </a>
+        <a
+          href="/directors"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">👤</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Directors</h3>
+          <p className="text-xs text-[#666]">Filmmakers ranked by average score</p>
+        </a>
+        <a
+          href="/compare"
+          className="group p-5 rounded-xl bg-[#111] border border-[#222] hover:border-[#f5a623] transition-all hover:bg-[#0a0a0a]"
+        >
+          <div className="text-2xl mb-2">⚖️</div>
+          <h3 className="font-semibold text-white mb-1 group-hover:text-[#f5a623]">Head-to-Head</h3>
+          <p className="text-xs text-[#666]">Compare any two movies</p>
         </a>
       </div>
 

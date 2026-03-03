@@ -83,3 +83,81 @@ export function getDecadeRankings(movies: MovieWithScore[], topPerDecade = 10) {
 
   return result;
 }
+
+/**
+ * Get genre leaderboards - top N movies per genre
+ */
+export function getGenreLeaderboards(movies: MovieWithScore[], topPerGenre = 20) {
+  const genres: { [key: string]: MovieWithScore[] } = {};
+
+  // Group by genre
+  movies.forEach(movie => {
+    if (!movie.genres || movie.genres.length === 0) return;
+    
+    movie.genres.forEach(genre => {
+      if (!genres[genre]) {
+        genres[genre] = [];
+      }
+      genres[genre].push(movie);
+    });
+  });
+
+  // Sort each genre by score and take top N
+  const result: { [key: string]: MovieWithScore[] } = {};
+  Object.entries(genres)
+    .sort((a, b) => a[0].localeCompare(b[0])) // Sort genres alphabetically
+    .forEach(([genre, genreMovies]) => {
+      result[genre] = genreMovies
+        .sort((a, b) => (b.movie_scores?.[0]?.composite_score ?? 0) - (a.movie_scores?.[0]?.composite_score ?? 0))
+        .slice(0, topPerGenre);
+    });
+
+  return result;
+}
+
+/**
+ * Get director scorecards with average rating
+ */
+export interface DirectorStats {
+  name: string;
+  movieCount: number;
+  averageScore: number;
+  movies: MovieWithScore[];
+}
+
+export function getDirectorScores(movies: MovieWithScore[]): DirectorStats[] {
+  const directors: { [key: string]: MovieWithScore[] } = {};
+
+  // Group by director
+  movies.forEach(movie => {
+    if (!movie.director) return;
+    if (!directors[movie.director]) {
+      directors[movie.director] = [];
+    }
+    directors[movie.director].push(movie);
+  });
+
+  // Calculate stats for each director
+  const stats: DirectorStats[] = Object.entries(directors).map(([name, directorMovies]) => {
+    const scores = directorMovies
+      .map(m => m.movie_scores?.[0]?.composite_score ?? 0)
+      .filter(s => s > 0);
+
+    const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+
+    return {
+      name,
+      movieCount: directorMovies.length,
+      averageScore,
+      movies: directorMovies.sort((a, b) => (b.movie_scores?.[0]?.composite_score ?? 0) - (a.movie_scores?.[0]?.composite_score ?? 0)),
+    };
+  });
+
+  // Sort by average score, then by movie count
+  return stats.sort((a, b) => {
+    if (Math.abs(a.averageScore - b.averageScore) > 0.1) {
+      return b.averageScore - a.averageScore;
+    }
+    return b.movieCount - a.movieCount;
+  });
+}
