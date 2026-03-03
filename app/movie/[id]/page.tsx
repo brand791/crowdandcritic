@@ -3,7 +3,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getMovieById, getTopMovies } from '@/lib/supabase';
 import { ScoreBreakdown } from '@/app/components/RankingBar';
-import { AffiliateLink } from '@/app/components/AffiliateLink';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -192,39 +191,39 @@ export default async function MoviePage({ params }: MoviePageProps) {
             
             {/* Primary CTA - Amazon (Affiliate) */}
             {movie.imdb_id && (
-              <AffiliateLink
+              <a
                 href={`https://www.amazon.com/s?k=${encodeURIComponent(movie.title + ' ' + movie.year)}&i=instant-video&tag=brand791-20`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-between w-full px-4 py-3 rounded-lg bg-[#f5a623] hover:bg-[#f7b84b] text-black font-semibold text-sm transition-all mb-2"
-                platform="amazon"
-                movieTitle={movie.title}
               >
                 <span>🎁 Watch on Amazon</span>
                 <span>→</span>
-              </AffiliateLink>
+              </a>
             )}
             
             {/* Secondary CTA - JustWatch */}
-            <AffiliateLink
+            <a
               href={`https://www.justwatch.com/us/search?q=${encodeURIComponent(movie.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333] mb-2"
-              platform="justwatch"
-              movieTitle={movie.title}
             >
               <span>Find Streaming Options</span>
               <span className="text-[#444]">→</span>
-            </AffiliateLink>
+            </a>
             
             {/* Tertiary - IMDb */}
             {movie.imdb_id && (
-              <AffiliateLink
+              <a
                 href={`https://www.imdb.com/title/${movie.imdb_id}/`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-between w-full px-4 py-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#222] text-sm text-[#888] hover:text-white transition-colors border border-[#222] hover:border-[#333]"
-                platform="imdb"
-                movieTitle={movie.title}
               >
                 <span>View Details on IMDb</span>
                 <span className="text-[#444]">→</span>
-              </AffiliateLink>
+              </a>
             )}
           </div>
         </div>
