@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function HiddenGemsPage() {
-  const movies = await getTopMovies(409);
+  const movies = await getTopMovies(1000);
   const hiddenGems = getHiddenGems(movies, 80);
 
   return (
@@ -32,7 +32,7 @@ export default async function HiddenGemsPage() {
       {/* Info Box */}
       <div className="mb-8 p-5 rounded-lg bg-[#111] border border-[#222] text-sm text-[#666]">
         <p>
-          <span className="text-[#f5a623] font-semibold">Criteria:</span> Score 80+, but fewer than 50,000 IMDb votes.
+          <span className="text-[#f5a623] font-semibold">Criteria:</span> Score 80+, but fewer than 100,000 IMDb votes.
           These are quality films that haven't reached mainstream audiences yet.
         </p>
       </div>
