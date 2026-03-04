@@ -1,5 +1,33 @@
 import { MovieWithScore } from './supabase';
 
+// TMDB Genre ID to Name mapping
+const GENRE_NAMES: { [key: number]: string } = {
+  12: 'Adventure',
+  14: 'Fantasy',
+  16: 'Animation',
+  18: 'Drama',
+  27: 'Horror',
+  28: 'Action',
+  35: 'Comedy',
+  36: 'History',
+  37: 'Western',
+  53: 'Thriller',
+  80: 'Crime',
+  99: 'Documentary',
+  878: 'Science Fiction',
+  9648: 'Mystery',
+  10402: 'Music',
+  10749: 'Romance',
+  10751: 'Family',
+  10752: 'War',
+  10770: 'TV Movie',
+};
+
+function getGenreName(genreId: number | string): string {
+  const id = typeof genreId === 'string' ? parseInt(genreId, 10) : genreId;
+  return GENRE_NAMES[id] || `Genre ${id}`;
+}
+
 /**
  * Calculate controversy index - how much critics and audiences disagree
  * Positive = audiences like it more, Negative = critics like it more
@@ -39,7 +67,7 @@ export function getControversyMovies(movies: MovieWithScore[]) {
  * Identify hidden gems - high score, low visibility (vote count)
  */
 export function getHiddenGems(movies: MovieWithScore[], minScore = 80) {
-  const VISIBILITY_THRESHOLD = 50000; // IMDb vote count threshold
+  const VISIBILITY_THRESHOLD = 100000; // IMDb vote count threshold
 
   return movies
     .filter(m => {
@@ -94,11 +122,12 @@ export function getGenreLeaderboards(movies: MovieWithScore[], topPerGenre = 20)
   movies.forEach(movie => {
     if (!movie.genres || movie.genres.length === 0) return;
     
-    movie.genres.forEach(genre => {
-      if (!genres[genre]) {
-        genres[genre] = [];
+    movie.genres.forEach(genreId => {
+      const genreName = getGenreName(genreId);
+      if (!genres[genreName]) {
+        genres[genreName] = [];
       }
-      genres[genre].push(movie);
+      genres[genreName].push(movie);
     });
   });
 

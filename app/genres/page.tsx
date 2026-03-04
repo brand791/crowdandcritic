@@ -46,7 +46,7 @@ function MovieRow({ movie, rank }: { movie: any; rank: number }) {
 }
 
 export default async function GenresPage() {
-  const movies = await getTopMovies(409);
+  const movies = await getTopMovies(1000);
   const genres = getGenreLeaderboards(movies, 20);
 
   const genreEntries = Object.entries(genres);
