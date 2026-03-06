@@ -59,6 +59,8 @@ export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
       movie_scores (*),
       canon_lists (*)
     `)
+    .not('movie_scores', 'is', null)
+    .order('created_at', { ascending: false })
     .limit(limit);
 
   if (error) {
