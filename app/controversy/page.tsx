@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function ControversyPage() {
-  const movies = await getTopMovies(409);
+  const movies = await getTopMovies(1000); // Fetch all scored movies for complete analysis
   const controversyMovies = getControversyMovies(movies);
 
   return (

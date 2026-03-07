@@ -46,7 +46,7 @@ function MovieRow({ movie, rank }: { movie: any; rank: number }) {
 }
 
 export default async function DecadesPage() {
-  const movies = await getTopMovies(409);
+  const movies = await getTopMovies(1000); // Fetch all scored movies for complete decade analysis
   const decades = getDecadeRankings(movies, 10);
 
   // Sort decades in reverse order (newest first)

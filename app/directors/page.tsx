@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function DirectorsPage() {
-  const movies = await getTopMovies(409);
+  const movies = await getTopMovies(1000); // Fetch all scored movies to include all directors
   const directors = getDirectorScores(movies);
 
   // Only show directors with 2+ movies for meaningful stats
