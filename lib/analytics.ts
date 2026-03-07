@@ -67,7 +67,7 @@ export function getControversyMovies(movies: MovieWithScore[]) {
  * Identify hidden gems - high score, low visibility (vote count)
  */
 export function getHiddenGems(movies: MovieWithScore[], minScore = 80) {
-  const VISIBILITY_THRESHOLD = 100000; // IMDb vote count threshold
+  const VISIBILITY_THRESHOLD = 25000; // IMDb vote count threshold (lowered to 25K for more hidden gems)
 
   return movies
     .filter(m => {
