@@ -182,11 +182,13 @@ export function getDirectorScores(movies: MovieWithScore[]): DirectorStats[] {
     };
   });
 
-  // Sort by average score, then by movie count
+  // Sort by movie count (descending), then by average score as tiebreaker
   return stats.sort((a, b) => {
-    if (Math.abs(a.averageScore - b.averageScore) > 0.1) {
-      return b.averageScore - a.averageScore;
+    // Primary sort: movie count (most movies first)
+    if (a.movieCount !== b.movieCount) {
+      return b.movieCount - a.movieCount;
     }
-    return b.movieCount - a.movieCount;
+    // Tiebreaker: average score (highest average first)
+    return b.averageScore - a.averageScore;
   });
 }

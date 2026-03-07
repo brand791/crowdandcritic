@@ -28,7 +28,7 @@ export default async function DirectorsPage() {
       <div className="mb-12">
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">Director Scorecards</h1>
         <p className="text-[#666] text-lg max-w-2xl">
-          Filmmakers ranked by the average score of their films. (Min. 2 films)
+          Filmmakers ranked by number of films on our list. (Min. 2 films)
         </p>
       </div>
 
