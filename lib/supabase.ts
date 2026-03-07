@@ -52,6 +52,7 @@ export interface MovieWithScore extends Movie {
 }
 
 export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
+  // Fetch more than the limit to ensure we have enough scored movies after filtering
   const { data, error } = await supabase
     .from('movies')
     .select(`
@@ -60,8 +61,7 @@ export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
       canon_lists (*)
     `)
     .not('movie_scores', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    .limit(limit * 2); // Fetch 2x to account for any anomalies
 
   if (error) {
     console.error('Error fetching movies:', error);
@@ -78,15 +78,18 @@ export async function getTopMovies(limit = 100): Promise<MovieWithScore[]> {
       : [],
   }));
 
-  return normalized.sort((a, b) => {
+  // Sort by composite score descending, then by title for movies with same score
+  const sorted = normalized.sort((a, b) => {
     const scoreA = (a.movie_scores as MovieScore[])?.[0]?.composite_score ?? 0;
     const scoreB = (b.movie_scores as MovieScore[])?.[0]?.composite_score ?? 0;
-    // Sort by composite score descending, then by title for movies with same score
     if (Math.abs(scoreB - scoreA) > 0.01) {
       return scoreB - scoreA;
     }
     return a.title.localeCompare(b.title);
   });
+
+  // Return exactly `limit` movies
+  return sorted.slice(0, limit);
 }
 
 export async function getMovieById(id: string): Promise<MovieWithScore | null> {
