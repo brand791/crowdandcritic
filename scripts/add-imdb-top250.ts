@@ -1,146 +1,125 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
+import fetch from 'node-fetch';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const tmdbKey = process.env.TMDB_API_KEY;
-
-if (!supabaseUrl || !supabaseKey || !tmdbKey) {
-  console.error("Missing credentials");
-  process.exit(1);
-}
-
+const supabaseUrl = 'https://rlnkmresgszqiyaamcfp.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsbmttcmVzZ3N6cWl5YWFtY2ZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTk0NTczMCwiZXhwIjoyMDg3NTIxNzMwfQ.cxu_N9FdX6Xe2GwHmPpiMLn1OY2PFuJ2mOsPSoJy9_o';
 const supabase = createClient(supabaseUrl, supabaseKey);
+const tmdbKey = 'f89d62b556a34bac6115257325b6271a';
 
-// Complete IMDb Top 250 list
+// IMDb Top 250 manually curated list
 const imdbTop250 = [
-  "The Shawshank Redemption", "The Godfather", "The Godfather Part II",
-  "12 Angry Men", "Pulp Fiction", "The Lord of the Rings: The Return of the King",
-  "The Dark Knight", "Schindler's List", "Inception", "Fight Club",
-  "The Lord of the Rings: The Fellowship of the Ring", "Forrest Gump", "The Matrix",
-  "Goodfellas", "The Silence of the Lambs", "Saving Private Ryan", "Interstellar",
-  "The Green Mile", "The Shining", "The Usual Suspects", "Parasite",
-  "Léon: The Professional", "The Departed", "The Prestige", "The Lion King",
-  "Back to the Future", "Whiplash", "Gladiator", "The Sixth Sense", "Psycho",
-  "The Dark Knight Rises", "The Wolf of Wall Street", "Goodwill Hunting", "Se7en",
-  "American History X", "Joker", "Terminator 2: Judgment Day", "Requiem for a Dream",
-  "A Clockwork Orange", "The Aviator", "Spirited Away", "Alien", "Memento",
-  "Coco", "The Sting", "Jaws", "Once Upon a Time in the West", "Singin' in the Rain",
-  "Chinatown", "Raiders of the Lost Ark", "Rear Window", "The Third Man",
-  "Lawrence of Arabia", "Once Upon a Time in America", "Paths of Glory", "Vertigo",
-  "Sunset Boulevard", "Some Like It Hot", "2001: A Space Odyssey", "The Apartment",
-  "All About Eve", "Witness for the Prosecution", "The Great Dictator", "Modern Times",
-  "City Lights", "Casablanca", "The Kid", "Metropolis", "Nosferatu", "Pan's Labyrinth",
-  "Butch Cassidy and the Sundance Kid", "The French Connection", "American Beauty",
-  "Taxi Driver", "Heat", "Reservoir Dogs", "Eternal Sunshine of the Spotless Mind",
-  "The Truman Show", "Donnie Darko", "The Pursuit of Happyness", "Slumdog Millionaire",
-  "Argo", "Braveheart", "The Full Monty", "Casino", "Titanic", "The Bodyguard",
-  "Aladdin", "Beauty and the Beast", "The Prince of Egypt", "Cinderella",
-  "Sleeping Beauty", "Sword in the Stone", "The Little Mermaid",
-  "Snow White and the Seven Dwarfs", "Pinocchio", "Fantasia", "Dumbo", "Bambi",
-  "Alice in Wonderland", "The Jungle Book", "The Aristocats", "Robin Hood",
-  "The Rescuers", "Oliver & Company", "Pocahontas", "Hunchback of Notre Dame",
-  "Hercules", "Mulan", "Tarzan", "Atlantis: The Lost Empire", "Treasure Planet",
-  "Brother Bear", "Home on the Range", "The Emperor's New Groove", "Chicken Little",
-  "Meet the Robinsons", "Bolt", "The Princess and the Frog", "Tangled",
-  "Wreck-It Ralph", "Frozen", "Big Hero 6", "Zootopia", "Moana", "Encanto",
-  "Elemental", "Wish", "Turning Red", "Raya and the Last Dragon", "Soul", "Onward",
-  "Toy Story", "Toy Story 2", "Toy Story 3", "Toy Story 4", "Cars", "Cars 2", "Cars 3",
-  "A Bug's Life", "Monsters, Inc.", "Monsters University", "Finding Nemo", "Finding Dory",
-  "WALL-E", "Up", "Inside Out", "Inside Out 2", "The Incredibles", "Incredibles 2",
-  "Brave", "Ratatouille", "Shrek", "Shrek 2", "Shrek the Third", "Shrek Forever After",
-  "Kung Fu Panda", "Kung Fu Panda 2", "Kung Fu Panda 3", "Madagascar", "Madagascar 2",
-  "Madagascar 3", "Madagascar 4", "The Croods", "The Croods: A New Age",
-  "How to Train Your Dragon", "How to Train Your Dragon 2", "How to Train Your Dragon 3",
-  "Despicable Me", "Despicable Me 2", "Despicable Me 3", "Minions",
-  "Minions: The Rise of Gru", "The Boss Baby", "The Boss Baby: Family Business",
-  "Sing", "Sing 2", "Zathura", "Bee Movie", "Monsters vs. Aliens", "Megamind",
-  "The Hangover", "The Hangover Part II", "The Hangover Part III",
+  { title: 'The Shawshank Redemption', year: 1994, imdbId: 'tt0111161' },
+  { title: 'The Godfather', year: 1972, imdbId: 'tt0068646' },
+  { title: 'The Dark Knight', year: 2008, imdbId: 'tt0468569' },
+  { title: 'Pulp Fiction', year: 1994, imdbId: 'tt0110912' },
+  { title: 'Schindler\'s List', year: 1993, imdbId: 'tt0108052' },
+  { title: 'Inception', year: 2010, imdbId: 'tt1375666' },
+  { title: 'The Matrix', year: 1999, imdbId: 'tt0133093' },
+  { title: 'Goodfellas', year: 1990, imdbId: 'tt0099674' },
+  { title: 'The Silence of the Lambs', year: 1991, imdbId: 'tt0102926' },
+  { title: 'Se7en', year: 1995, imdbId: 'tt0114369' },
+  { title: 'Saving Private Ryan', year: 1998, imdbId: 'tt0120815' },
+  { title: 'Forrest Gump', year: 1994, imdbId: 'tt0109830' },
+  { title: 'The Green Mile', year: 1999, imdbId: 'tt0120689' },
+  { title: 'Interstellar', year: 2014, imdbId: 'tt0816692' },
+  { title: 'The Usual Suspects', year: 1995, imdbId: 'tt0114814' },
+  { title: 'Gladiator', year: 2000, imdbId: 'tt0172495' },
+  { title: 'The Sixth Sense', year: 1999, imdbId: 'tt0110912' },
+  { title: 'Fight Club', year: 1999, imdbId: 'tt0137523' },
+  { title: 'The Prestige', year: 2006, imdbId: 'tt0482571' },
+  { title: 'Memento', year: 2000, imdbId: 'tt0113997' },
+  { title: 'Back to the Future', year: 1985, imdbId: 'tt0088763' },
+  { title: 'The Last Temptation of Christ', year: 1988, imdbId: 'tt0095497' },
+  { title: 'Taxi Driver', year: 1976, imdbId: 'tt0075314' },
+  { title: '2001: A Space Odyssey', year: 1968, imdbId: 'tt0062622' },
+  { title: 'Dr. Strangelove', year: 1964, imdbId: 'tt0057012' },
+  { title: 'One Flew Over the Cuckoo\'s Nest', year: 1975, imdbId: 'tt0073486' },
+  { title: 'The Shining', year: 1980, imdbId: 'tt0081505' },
+  { title: 'The Empire Strikes Back', year: 1980, imdbId: 'tt0080684' },
+  { title: 'Blade Runner', year: 1982, imdbId: 'tt0083658' },
+  { title: 'Raiders of the Lost Ark', year: 1981, imdbId: 'tt0082971' },
+  { title: 'Jaws', year: 1975, imdbId: 'tt0073195' },
+  { title: 'Apocalypse Now', year: 1979, imdbId: 'tt0078788' },
+  { title: 'Vertigo', year: 1958, imdbId: 'tt0052357' },
+  { title: 'Rear Window', year: 1954, imdbId: 'tt0047396' },
+  { title: 'Singin\' in the Rain', year: 1952, imdbId: 'tt0045152' },
+  { title: 'Citizen Kane', year: 1941, imdbId: 'tt0033467' },
+  { title: 'Casablanca', year: 1942, imdbId: 'tt0034583' },
+  { title: 'Sunset Boulevard', year: 1950, imdbId: 'tt0043014' },
+  { title: 'The Maltese Falcon', year: 1941, imdbId: 'tt0033856' },
+  { title: 'The Third Man', year: 1949, imdbId: 'tt0041959' },
+  { title: 'It\'s a Wonderful Life', year: 1946, imdbId: 'tt0038650' },
+  { title: 'The Seventh Seal', year: 1957, imdbId: 'tt0050976' },
+  { title: 'Breathless', year: 1960, imdbId: 'tt0053472' },
+  { title: '400 Blows', year: 1959, imdbId: 'tt0053472' },
+  { title: 'Bicycle Thieves', year: 1948, imdbId: 'tt0040522' },
+  { title: 'The 400 Blows', year: 1959, imdbId: 'tt0053472' },
+  { title: 'City Lights', year: 1931, imdbId: 'tt0021749' },
+  { title: 'Metropolis', year: 1927, imdbId: 'tt0017136' },
+  { title: 'Nosferatu', year: 1922, imdbId: 'tt0013442' },
 ];
 
-async function addMissingMovies() {
-  console.log(`\n🎬 Adding IMDb Top 250 movies to database...\n`);
+async function addTop250() {
+  try {
+    console.log(`Adding IMDb Top 250 movies...\n`);
 
-  let added = 0;
-  let skipped = 0;
-  let failed = 0;
-
-  for (const title of imdbTop250) {
-    // Check if already exists
+    // Check which ones already exist
+    const existingTitles = new Set<string>();
     const { data: existing } = await supabase
-      .from("movies")
-      .select("id")
-      .ilike("title", `%${title}%`)
-      .limit(1);
+      .from('movies')
+      .select('title, year');
+    
+    existing?.forEach(m => {
+      existingTitles.add(`${m.title}|${m.year}`);
+    });
 
-    if (existing && existing.length > 0) {
-      skipped++;
-      continue;
-    }
+    console.log(`Current database has ${existing?.length} movies`);
+    console.log(`Checking ${imdbTop250.length} IMDb Top 250 films...\n`);
 
-    // Search TMDB for the movie
-    try {
-      const tmdbRes = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${encodeURIComponent(title)}`
-      );
-      const tmdbData = await tmdbRes.json();
+    let added = 0;
+    const toAdd: any[] = [];
 
-      if (!tmdbData.results || tmdbData.results.length === 0) {
-        console.log(`⚠️  Not found on TMDB: ${title}`);
-        failed++;
-        continue;
-      }
-
-      const movie = tmdbData.results[0];
-      const tmdbId = movie.id;
-      const poster = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : null;
-
-      // Get genres and director
-      const detailRes = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbKey}&append_to_response=credits`
-      );
-      const detailData = await detailRes.json();
-      const director = detailData.credits?.crew?.find(
-        (c: any) => c.job === "Director"
-      )?.name;
-      const genreArray = detailData.genres
-        ?.slice(0, 3)
-        .map((g: any) => g.name) || [];
-
-      // Add to database
-      const { error } = await supabase.from("movies").insert({
-        title: movie.title || title,
-        year: movie.release_date ? parseInt(movie.release_date.split("-")[0]) : null,
-        poster_url: poster,
-        imdb_id: movie.imdb_id || null,
-        plot: movie.overview || null,
-        director: director || null,
-        genres: genreArray, // Pass as array
-        created_at: new Date().toISOString(),
-      });
-
-      if (error) {
-        console.log(`❌ Failed to add "${title}": ${error.message}`);
-        failed++;
-      } else {
-        console.log(`✅ Added: ${movie.title || title}`);
+    for (const movie of imdbTop250) {
+      const key = `${movie.title}|${movie.year}`;
+      if (!existingTitles.has(key)) {
+        console.log(`Missing: ${movie.title} (${movie.year})`);
+        toAdd.push({
+          title: movie.title,
+          year: movie.year,
+          imdb_id: movie.imdbId,
+          tmdb_id: null,
+          poster_url: null,
+          genres: [],
+          director: null,
+          runtime_minutes: null,
+          plot: null
+        });
         added++;
       }
-
-      // Small delay to respect TMDB rate limits
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    } catch (err) {
-      console.log(`❌ Error fetching "${title}":`, err);
-      failed++;
     }
-  }
 
-  console.log(`\n📊 Results:`);
-  console.log(`✅ Added: ${added}`);
-  console.log(`⏭️  Already existed: ${skipped}`);
-  console.log(`❌ Failed: ${failed}`);
-  console.log(`\n✨ Next step: Run fetch-omdb-scores-v4.ts to score new movies\n`);
+    console.log(`\n${added} movies need to be added\n`);
+
+    if (toAdd.length > 0) {
+      // Insert into database
+      const { error } = await supabase
+        .from('movies')
+        .insert(toAdd);
+
+      if (error) {
+        console.error('Insert error:', error.message);
+      } else {
+        console.log(`✅ Added ${toAdd.length} movies to database`);
+      }
+    }
+
+    console.log(`\nNew total: ${(existing?.length || 0) + toAdd.length} movies`);
+
+  } catch (err) {
+    console.error('Exception:', err);
+  }
+  
+  process.exit(0);
 }
 
-addMissingMovies().catch(console.error);
+addTop250();
