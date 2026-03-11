@@ -107,7 +107,7 @@ async function fetchAndUpdateScores(): Promise<void> {
     const query = new URLSearchParams({
       apikey: omdbKey,
       t: movie.title,
-      y: movie.year.toString(),
+      ...(movie.year && { y: movie.year.toString() }),
       type: 'movie',
     });
 
